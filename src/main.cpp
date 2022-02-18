@@ -1,7 +1,22 @@
 ﻿#include <iostream>
+#include "Application.hpp"
 
 int main(int argc, char** argv)
 {
-	std::cout << "Hello, World!" << std::endl;
+	glfwInit();
+
+	Application* app;
+	try
+	{
+		app = new Application();
+	}
+	catch (const std::runtime_error& err)
+	{
+		std::cerr << err.what() << std::endl;
+		return -1;
+	}
+
+	app->Launch();
+
 	return 0;
 }

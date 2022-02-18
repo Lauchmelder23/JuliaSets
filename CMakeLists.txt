@@ -6,4 +6,6 @@ cmake_minimum_required (VERSION 3.8)
 project ("Mandelbrot")
 
 # Include sub-projects.
+add_subdirectory ("vendor/glfw")
+add_subdirectory ("vendor/glad")
 add_subdirectory ("src")

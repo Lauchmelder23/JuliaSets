@@ -4,6 +4,14 @@
 cmake_minimum_required (VERSION 3.8)
 
 # Add source to this project's executable.
-add_executable (Mandelbrot "main.cpp")
+add_executable (Mandelbrot "main.cpp" "Window.cpp" "Application.cpp" "Canvas.cpp")
 
-# TODO: Add tests and install targets if needed.
+target_include_directories(Mandelbrot PRIVATE
+	glfw
+	glad
+)
+
+target_link_libraries(Mandelbrot
+	glfw
+	glad
+)
