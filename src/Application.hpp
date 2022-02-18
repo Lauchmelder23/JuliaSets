@@ -14,4 +14,6 @@ public:
 private:
 	Window* window;
 	Canvas* canvas;
+
+	float backgroundColor[3];
 };

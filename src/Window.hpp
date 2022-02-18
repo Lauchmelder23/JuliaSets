@@ -14,6 +14,8 @@ public:
 	inline void MakeContextCurrent() { glfwMakeContextCurrent(handle); }
 	void Display();
 
+	void InitImGui();
+
 private:
 	GLFWwindow* handle;
 };

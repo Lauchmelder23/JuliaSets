@@ -3,6 +3,8 @@
 
 #include <stdexcept>
 
+#include <backends/imgui_impl_glfw.h>
+
 Window::Window(uint32_t width, uint32_t height, const std::string& title) :
 	handle(nullptr)
 {
@@ -33,4 +35,9 @@ Window::~Window()
 void Window::Display()
 {
 	glfwSwapBuffers(handle);
+}
+
+void Window::InitImGui()
+{
+	ImGui_ImplGlfw_InitForOpenGL(handle, true);
 }
