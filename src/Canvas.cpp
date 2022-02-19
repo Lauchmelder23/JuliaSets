@@ -26,6 +26,7 @@ Canvas::Canvas() :
 	properties.c[0] = -0.835;
 	properties.c[1] = -0.2321;
 	properties.doublePrecision = false;
+	properties.isPolar = false;
 
 	CreateVertexArrayObject();
 	CreateShaderProgram();
@@ -96,9 +97,21 @@ void Canvas::CalculateJuliaSet()
 		computeShader.Use();
 
 	// Set uniforms for shader
+	float c[2];
+	if (!properties.isPolar)
+	{
+		c[0] = properties.c[0];
+		c[1] = properties.c[1];
+	}
+	else
+	{
+		c[0] = properties.c[0] * cosf(properties.c[1]);
+		c[1] = properties.c[0] * sinf(properties.c[1]);
+	}
+
 	glUniform2f(1, properties.xBounds[0], properties.xBounds[1]);
 	glUniform2f(2, yMin, yMax);
-	glUniform2f(3, properties.c[0], properties.c[1]);
+	glUniform2f(3, c[0], c[1]);
 	glUniform1i(4, properties.maxIterations);
 	glUniform1f(5, properties.iterationColorCutoff);
 

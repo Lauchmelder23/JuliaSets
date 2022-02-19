@@ -94,15 +94,42 @@ void Application::Launch()
 
 		// Render ImGui window
 		ImGui::Begin("Julia Set Properties");
+		ImGui::AlignTextToFramePadding();
 
 		ImGui::SliderInt("Max Iterations", (int*)&props.maxIterations, 10, 1000);
 		ImGui::SliderFloat("Color Threshold", &props.iterationColorCutoff, 10, 1000);
 		ImGui::SliderInt("Texture Width", (int*)&props.textureWidth, 480, 2560);
 
-		ImGui::SliderFloat2("c", props.c, -1.5f, 1.5f);
+		if (ImGui::Button(props.isPolar ? "Polar" : "Cartesian"))
+			props.isPolar = !props.isPolar;
 
+		if (!props.isPolar)
+		{
+			ImGui::SliderFloat("c (x)", &props.c[0], -1.5f, 1.5);
+			ImGui::SliderFloat("c (y)", &props.c[1], -1.5f, 1.5);
+		}
+		else
+		{
+			ImGui::SliderFloat("c (r)", &props.c[0], 0, 2.0f);
+			ImGui::SliderFloat("c (phi)", &props.c[1], 0, 3.1415926535f * 2.0f);
+		}
+
+		ImGui::Separator();
+
+		// Danger zone
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
+		ImGui::TextWrapped("Clicking the following button will set the compute shader precision to double. Depending on the other parameters this can lead to an extremely expensive workload that will lag the app in the best case, or timeout your GPU in the worst case.");
+		ImGui::PopStyleColor();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.25f, 0.25f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.35f, 0.35f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
 		if (ImGui::Button(props.doublePrecision ? "Double Precision" : "Single Precision"))
 			props.doublePrecision = !props.doublePrecision;
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+
 
 		ImGui::Separator();
 

@@ -13,6 +13,7 @@ struct JuliaProperties
 	uint32_t textureWidth;
 	float c[2];
 	bool doublePrecision;
+	bool isPolar;
 };
 
 struct WorkProperties
