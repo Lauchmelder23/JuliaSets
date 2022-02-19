@@ -4,19 +4,19 @@
 cmake_minimum_required (VERSION 3.8)
 
 # Add source to this project's executable.
-add_executable (Mandelbrot "main.cpp" "Window.cpp" "Application.cpp" "Canvas.cpp" "Shader.cpp")
+add_executable (julia "main.cpp" "Window.cpp" "Application.cpp" "Canvas.cpp" "Shader.cpp")
 
-target_sources(Mandelbrot PRIVATE
+target_sources(julia PRIVATE
 	${IMGUI_SOURCE_FILES}
 )
 
-target_include_directories(Mandelbrot PRIVATE
+target_include_directories(julia PRIVATE
 	glfw
 	glad
 	${IMGUI_INCLUDE_DIRS}
 )
 
-target_link_libraries(Mandelbrot
+target_link_libraries(julia
 	glfw
 	glad
 )

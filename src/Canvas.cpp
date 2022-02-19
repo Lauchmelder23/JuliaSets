@@ -15,6 +15,7 @@ double Map(double fromMin, double fromMax, double toMin, double toMax, double va
 Canvas::Canvas() :
 	vao(0), vbo(0), texture(0)
 {
+	// Default Julia properties
 	properties.xBounds[0] = -2.5f;
 	properties.xBounds[1] = 2.5f;
 	properties.yCenter = 0.0f;
@@ -47,8 +48,10 @@ Canvas::~Canvas()
 
 void Canvas::Render()
 {
+	// Wait for compute shader to finish
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
+	// Render texture to screen
 	shader.Use();
 	glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -58,44 +61,54 @@ void Canvas::Render()
 
 void Canvas::CalculateJuliaSet()
 {
+	// Wait for previous calculation to finish
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
+	// width and height of the target texture
 	int width = properties.textureWidth;
 	int height = properties.textureWidth * properties.aspectRatio;
 
+	// domain in y direction
 	float yLength = (properties.xBounds[1] - properties.xBounds[0]) * properties.aspectRatio;
 	float yMin = properties.yCenter - 0.5f * yLength;
 	float yMax = properties.yCenter + 0.5f * yLength;
 
+	// Bind our texture object
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	// Set texture properties (linear filtering)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+	// Re-create empty texture with right dimensions
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// Prepare texture for use in the compute shader
 	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
+	// Decide whether to use single- or double precision shader
 	if (properties.doublePrecision)
 		doubleComputeShader.Use();
 	else
 		computeShader.Use();
 
+	// Set uniforms for shader
 	glUniform2f(1, properties.xBounds[0], properties.xBounds[1]);
 	glUniform2f(2, yMin, yMax);
 	glUniform2f(3, properties.c[0], properties.c[1]);
 	glUniform1i(4, properties.maxIterations);
 	glUniform1f(5, properties.iterationColorCutoff);
 
+	// Calculate Julia set
 	glDispatchCompute(width, height, 1);
-
-	// delete[] image;
 }
 
 void Canvas::CreateVertexArrayObject()
 {
+	// Create simple quad
 	float vertices[4 * (2 + 2)] = {
 		-1.0f, -1.0f,	0.0f, 0.0f,
 		-1.0f,  1.0f,	0.0f, 1.0f,
@@ -119,6 +132,8 @@ void Canvas::CreateVertexArrayObject()
 
 void Canvas::CreateShaderProgram()
 {
+	// Create the render shader
+	// It simply renders the texture to a quad
 	std::string vertexShaderSource = R"(
 		#version 460 core
 
@@ -157,6 +172,7 @@ void Canvas::CreateCompueShader()
 {
 	QueryWorkGroupInfo();
 
+	// Create compute shader
 	std::string shaderSource = R"(
 		#version 460 core
 
@@ -209,6 +225,7 @@ void Canvas::CreateCompueShader()
 	doubleComputeShader.AttachComputeShader(shaderSource);
 	doubleComputeShader.Link();
 
+	// Single precision shader is the exact same, except different datatypes
 	shaderSource = std::regex_replace(shaderSource, std::regex("double"), "float");
 	shaderSource = std::regex_replace(shaderSource, std::regex("dvec2"), "vec2");
 	computeShader.AttachComputeShader(shaderSource);
@@ -218,12 +235,11 @@ void Canvas::CreateCompueShader()
 void Canvas::CreateTexture()
 {
 	glGenTextures(1, &texture);
-
-	// CalculateJuliaSet();
 }
 
 void Canvas::QueryWorkGroupInfo()
 {
+	// Get infor about the GPUs work group props
 	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &workProperties.groupCount[0]);
 	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &workProperties.groupCount[1]);
 	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &workProperties.groupCount[2]);
