@@ -3,6 +3,14 @@
 #include "Window.hpp"
 #include "Canvas.hpp"
 
+struct WindowData
+{
+	struct
+	{
+		double x, y;
+	} mouseDelta, lastMousePos, wheel;
+};
+
 class Application
 {
 public:
@@ -15,5 +23,5 @@ private:
 	Window* window;
 	Canvas* canvas;
 
-	float backgroundColor[3];
+	WindowData data;
 };

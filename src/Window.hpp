@@ -11,10 +11,14 @@ public:
 	~Window();
 
 	inline bool ShouldClose() { return glfwWindowShouldClose(handle); }
+	inline void SetShouldClose(int value) { return glfwSetWindowShouldClose(handle, value); }
 	inline void MakeContextCurrent() { glfwMakeContextCurrent(handle); }
-	void Display();
+	inline void GetWindowSize(int& width, int& height) { glfwGetWindowSize(handle, &width, &height); }
 
+	void Display();
 	void InitImGui();
+
+	inline GLFWwindow* GetHandle() { return handle; }
 
 private:
 	GLFWwindow* handle;
